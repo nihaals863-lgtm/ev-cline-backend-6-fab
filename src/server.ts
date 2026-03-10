@@ -49,10 +49,16 @@ app.use(compression());
 app.use(
   cors({
     origin: [
-      process.env.FRONTEND_URL || "http://localhost:5173",
+      "http://localhost:5173",
+      "http://localhost:5174",
+      "http://localhost:3000",
+      "http://127.0.0.1:5173",
+      "http://127.0.0.1:5174",
+      "http://127.0.0.1:3000",
+      process.env.FRONTEND_URL,
       "https://ev-cline-backend-6-fab-production.up.railway.app",
       "https://ev-clinic.kiaantechnology.com",
-    ],
+    ].filter(Boolean),
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: [
@@ -60,7 +66,9 @@ app.use(
       "Authorization",
       "X-Requested-With",
       "x-clinic-id",
+      "Accept"
     ],
+    exposedHeaders: ["set-cookie"]
   })
 );
 
