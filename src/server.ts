@@ -1,7 +1,11 @@
 import dotenv from 'dotenv';
-// Force reload environment variables to pick up changes in .env
-delete process.env.DATABASE_URL;
-dotenv.config({ override: true });
+// Only load from .env if it exists and we're not explicitly told not to.
+// Do NOT delete DATABASE_URL in production!
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config({ override: true });
+} else {
+  dotenv.config(); // Still load any other potential envs
+}
 
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
@@ -49,17 +53,7 @@ app.use(compression());
 
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "http://localhost:5174",
-      "http://localhost:3000",
-      "http://127.0.0.1:5173",
-      "http://127.0.0.1:5174",
-      "http://127.0.0.1:3000",
-      process.env.FRONTEND_URL,
-      "https://ev-cline-backend-6-fab-production.up.railway.app",
-      "https://ev-clinic.kiaantechnology.com",
-    ].filter(Boolean),
+    origin: true, // Allow all origins during debugging
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: [
@@ -67,12 +61,12 @@ app.use(
       "Authorization",
       "X-Requested-With",
       "x-clinic-id",
-      "Accept"
+      "Accept",
+      "X-Auth-Token"
     ],
-    exposedHeaders: ["set-cookie"]
+    exposedHeaders: ["set-cookie", "Authorization"]
   })
 );
-
 app.use(morgan('dev'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
@@ -143,12 +137,13 @@ app.use(
 
 const server = app.listen(PORT, () => {
   console.log(`
-🚀 EV Clinic HIS Backend (Restarted)
+🚀 EV Clinic HIS Backend (Production Fix)
 --------------------------------
 Status : RUNNING
 Port   : ${PORT}
 Env    : ${process.env.NODE_ENV || 'production'}
 Started: ${startTime}
+DB URL : ${process.env.DATABASE_URL ? 'PRESENT' : 'MISSING!'}
 --------------------------------
 `);
 });
