@@ -51,9 +51,32 @@ app.use(helmet({
 app.use(compression());
 
 
+// app.use(
+//   cors({
+//     origin: true, // Allow all origins during debugging
+//     credentials: true,
+//     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+//     allowedHeaders: [
+//       "Content-Type",
+//       "Authorization",
+//       "X-Requested-With",
+//       "x-clinic-id",
+//       "Accept",
+//       "X-Auth-Token"
+//     ],
+//     exposedHeaders: ["set-cookie", "Authorization"]
+//   })
+// );
+
+
+
+const isProd = process.env.NODE_ENV === 'production';
+
 app.use(
   cors({
-    origin: true, // Allow all origins during debugging
+    origin: isProd
+      ? 'https://ev-clinic.wenbear.online' // 👉 replace with your frontend URL
+      : true, // allow all in development
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: [
@@ -67,6 +90,9 @@ app.use(
     exposedHeaders: ["set-cookie", "Authorization"]
   })
 );
+
+
+
 app.use(morgan('dev'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
